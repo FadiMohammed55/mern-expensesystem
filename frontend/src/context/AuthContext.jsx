@@ -1,12 +1,8 @@
 import { createContext, useContext, useState } from "react";
-import axios from "axios";
 import { showError, showSuccess } from "../utils/helpers";
 import { useNavigate } from "react-router";
+import api from "../utils/axios.js";
 
-const BASE_URL = "http://localhost:5000/api";
-
-const axiosPublic = axios.create({ baseURL: BASE_URL });
-const authAxios = axios.create({ baseURL: BASE_URL });
 
 const AuthContext = createContext();
 
@@ -16,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   );
   const navigate = useNavigate();
 
-  authAxios.interceptors.request.use((config) => {
+  api.interceptors.request.use((config) => {
     const userData = JSON.parse(localStorage.getItem("user"));
     if (userData?.token)
       config.headers.Authorization = `Bearer ${userData.token}`;
@@ -24,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = async (email, password) => {
-    const { data } = await axiosPublic.post("/auth/login", { email, password });
+    const { data } = await api.post("/auth/login", { email, password });
     setUser(data);
     localStorage.setItem("user", JSON.stringify(data));
     showSuccess("Logged in successfully!");
@@ -32,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (username, email, password) => {
-    const { data } = await axiosPublic.post("/auth/register", {
+    const { data } = await api.post("/auth/register", {
       username,
       email,
       password,
@@ -51,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, authAxios }}>
+    <AuthContext.Provider value={{ user, login, register, logout, api }}>
       {children}
     </AuthContext.Provider>
   );

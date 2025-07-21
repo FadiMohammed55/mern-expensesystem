@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import { showSuccess, showError } from "../utils/helpers";
 import { Pencil, Trash2 } from "lucide-react";
+import api from "../utils/axios.js";
+
 
 const Dashboard = () => {
-  const { authAxios } = useAuth();
   const [expenses, setExpenses] = useState([]);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
@@ -13,7 +13,7 @@ const Dashboard = () => {
 
   const fetchExpenses = async () => {
     try {
-      const { data } = await authAxios.get("/expenses");
+      const { data } = await api.get("/expenses");
       setExpenses(data.expenses);
     } catch (err) {
       showError("Failed to fetch expenses", err);
@@ -31,14 +31,14 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await authAxios.put(`/expenses/${editingId}`, {
+        await api.put(`/expenses/${editingId}`, {
           title,
           amount,
           category,
         });
         showSuccess("Expense updated");
       } else {
-        await authAxios.post(`/expenses`, { title, amount, category });
+        await api.post(`/expenses`, { title, amount, category });
         showSuccess("Expense added");
       }
       resetForm();
@@ -57,7 +57,7 @@ const Dashboard = () => {
 
   const deleteExpense = async (id) => {
     try {
-      await authAxios.delete(`/expenses/${id}`);
+      await api.delete(`/expenses/${id}`);
       showSuccess("Expense deleted");
       fetchExpenses();
     } catch {
